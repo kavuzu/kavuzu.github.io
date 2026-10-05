@@ -1,93 +1,61 @@
 <!DOCTYPE html>
-<!-- Это говорит браузеру: "перед тобой современный HTML-документ" -->
-<html lang="ru">
+<html lang="en">
 <head>
-    <!-- head - это "невидимая" часть страницы: настройки, а не то, что видит посетитель -->
-    <meta charset="UTF-8">
-    <title>Mate — портфолио</title>
-    <!-- title - это то, что видно во вкладке браузера -->
-
-    <style>
-        /* Здесь начинается CSS - оформление.
-           Каждое правило работает так:
-           селектор { свойство: значение; } */
-
-        body {
-            /* body - это ВСЯ видимая страница */
-            font-family: Georgia, serif;
-            background-color: #1a1a2e;   /* тёмно-синий фон */
-            color: #eaeaea;               /* светлый текст */
-            max-width: 700px;
-            margin: 0 auto;               /* центрируем контент по горизонтали */
-            padding: 40px 20px;
-            line-height: 1.6;
-        }
-
-        h1 {
-            color: #4ecca3;   /* мятно-зелёный акцент */
-            font-size: 2.2em;
-        }
-
-        h2 {
-            color: #4ecca3;
-            border-bottom: 1px solid #4ecca3;
-            padding-bottom: 5px;
-            margin-top: 40px;
-        }
-
-        .project-card {
-            /* точка перед словом означает "класс" - многоразовый стиль */
-            background-color: #1a1a2e;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin: 15px 0;
-        }
-
-        a {
-            color: #4ecca3;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Global Trade Atlas — bilingual interactive trade and supply-chain research.">
+<title>Global Trade Atlas</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#030712;color:#f6f9fd;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{display:grid;place-items:center}
+#boot{text-align:center;padding:24px}
+#boot b{display:block;font-size:14px;letter-spacing:.25em}
+#boot span{display:block;margin-top:12px;color:#8393a8;font-size:11px}
+</style>
 </head>
 <body>
-    <!-- body - здесь то, что реально видит посетитель -->
-
-    <h1>Mate1</h1>
-    <p>
-        10 класс. Учу кибербезопасность и Python.
-        Готовлюсь к поступлению на специалиста по кибербезопасности в США/Австралию.
-        <!-- TODO: перепиши это своими словами -->
-    </p>
-
-    <h2>Обо мне</h2>
-    <p>
-        <!-- TODO: напиши 3-4 предложения о том, почему тебе интересна кибербезопасность -->
-Заинтересовался кибербезопасностью после просмотра сериала «Мистер Робот». Сейчас изучаю Python и делаю первые шаги в вёрстке сайтов через VS Code. Стремлюсь поступить в США или Австралию на специалиста в сфере кибербезопасности.    </p>
-
-    <h2>Проекты</h2>
-
-    <div class="project-card">
-        <h3>Password Checker</h3>
-        <p>Скрипт на Python, который проверяет надёжность пароля.</p>
-        <!-- Позже здесь появится ссылка на твой GitHub -->
-    </div>
-
-    <div class="project-card">
-        <h3>Port Scanner</h3>
-        <p>В разработке — учусь работать с сокетами в Python.</p>
-    </div>
-<div class="project-card">
-
-    
-        <h3>Следующий проект</h3>
-        <p>Мой следующий проект.</p>
-    </div>
-    <h2>CTF и обучение</h2>
-    <p>
-        <!-- TODO: сюда будешь добавлять прогресс на TryHackMe, picoCTF и т.д. -->
-        Прохожу трек Pre Security на TryHackMe.
-    </p>
-
+<div id="boot"><b>GLOBAL TRADE ATLAS</b><span>Loading research platform…</span></div>
+<script>
+const GTA_PARTS=['assets/atlas/part-001.txt', 'assets/atlas/part-002.txt', 'assets/atlas/part-003.txt', 'assets/atlas/part-004.txt', 'assets/atlas/part-005.txt', 'assets/atlas/part-006.txt', 'assets/atlas/part-007.txt', 'assets/atlas/part-008.txt', 'assets/atlas/part-009.txt', 'assets/atlas/part-010.txt', 'assets/atlas/part-011.txt', 'assets/atlas/part-012.txt', 'assets/atlas/part-013.txt', 'assets/atlas/part-014.txt', 'assets/atlas/part-015.txt', 'assets/atlas/part-016.txt', 'assets/atlas/part-017.txt', 'assets/atlas/part-018.txt', 'assets/atlas/part-019.txt', 'assets/atlas/part-020.txt', 'assets/atlas/part-021.txt', 'assets/atlas/part-022.txt', 'assets/atlas/part-023.txt', 'assets/atlas/part-024.txt', 'assets/atlas/part-025.txt', 'assets/atlas/part-026.txt', 'assets/atlas/part-027.txt', 'assets/atlas/part-028.txt', 'assets/atlas/part-029.txt'];
+const GTA_REPO='kavuzu/kavuzu.github.io';
+async function currentBuildVersion(){
+  try{
+    const r=await fetch('https://api.github.com/repos/'+GTA_REPO+'/tags?per_page=100',{cache:'no-store'});
+    if(!r.ok)throw new Error('GitHub tags unavailable');
+    const tags=await r.json();
+    const versions=tags.map(x=>x.name).filter(x=>/^v16\.0\.\d+$/.test(x)).sort((a,b)=>Number(b.split('.').pop())-Number(a.split('.').pop()));
+    return versions[0]||'v16';
+  }catch(e){return 'v16';}
+}
+async function bootAtlas(){
+  if(!('DecompressionStream' in window))throw new Error('Please use a current version of Safari, Chrome, Edge or Firefox.');
+  const [version,chunks]=await Promise.all([
+    currentBuildVersion(),
+    Promise.all(GTA_PARTS.map(async path=>{
+      const r=await fetch(path,{cache:'force-cache'});
+      if(!r.ok)throw new Error('Failed to load Atlas payload: '+path+' ('+r.status+')');
+      return r.text();
+    }))
+  ]);
+  const binary=atob(chunks.join('').replace(/\s+/g,''));
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  let html=await new Response(stream).text();
+  const versionPattern=/const ATLAS_VERSION=Object\.freeze\(\{major:16,label:'[^']+',name:\{en:'Gold Master',ru:'Финальная версия'\},buildDate:'[^']+'\}\);/;
+  const today=new Date().toISOString().slice(0,10);
+  const replacement="const ATLAS_VERSION=Object.freeze({major:16,label:'"+version+"',name:{en:'Gold Master',ru:'Финальная версия'},buildDate:'"+today+"'});";
+  if(!versionPattern.test(html))throw new Error('Atlas version block was not found.');
+  html=html.replace(versionPattern,replacement).replaceAll('v16 · Gold Master',version+' · Gold Master');
+  document.open();
+  document.write(html);
+  document.close();
+}
+bootAtlas().catch(err=>{
+  console.error(err);
+  const el=document.getElementById('boot');
+  if(el)el.innerHTML='<b>GLOBAL TRADE ATLAS</b><span>Unable to load the Atlas. '+String(err.message||err)+'</span>';
+});
+</script>
 </body>
 </html>
-
-
