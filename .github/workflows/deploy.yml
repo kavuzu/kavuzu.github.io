@@ -1,0 +1,57 @@
+name: Deploy Global Trade Atlas
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The workflow never writes commits or tags.
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Validate source
+        run: python3 scripts/validate.py index.html
+      - name: Stamp deployment version
+        run: node scripts/build.mjs
+      - name: Validate published artifact
+        run: python3 scripts/validate.py _site/index.html
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Reject outdated commit reruns
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          latest=$(git ls-remote "https://github.com/${REPOSITORY}.git" refs/heads/main | cut -f1)
+          test "$latest" = "$GITHUB_SHA" || { echo 'Only the current main commit can deploy.'; exit 1; }
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

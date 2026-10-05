@@ -1,0 +1,15 @@
+# Generated deployment artifact
+_site/
+
+# Local tools, editor and OS files
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+.env
+.env.*
